@@ -1,7 +1,5 @@
 # spellbound.nvim
 
-**Spellbound is mostly vibecoded... Use at your own risk!**
-
 ## Demo
 
 ![video](spellbound_demo.gif)
@@ -83,5 +81,4 @@ require('spellbound').setup({
 
 ## Credits
 
-colors weren't working until i passed claude code colorize.nvim as a reference
-lol... doesn't seem to want to use it though...
+- Inspired by nvim-colorizer for highlight implementation patterns

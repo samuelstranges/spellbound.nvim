@@ -2,7 +2,7 @@
 
 local M = {}
 local state = require("spellbound.state")
-local my_config = require("spellbound.my_config")
+local config = require("spellbound.config")
 local ui = require("spellbound.ui")
 local on = require("spellbound.on_functions")
 
@@ -57,7 +57,7 @@ function M.enter_spellcheck_mode()
 	-- Ensure dictionary is loaded for faster operations
 	vim.cmd("silent! mkspell! " .. vim.fn.fnameescape(vim.o.spellfile))
 
-	-- Save original timeout settings *cause we modify these...
+	-- Save original timeout settings before modifying them
 	state.original_timeoutlen = vim.api.nvim_get_option_value("timeoutlen", {})
 	state.original_ttimeoutlen = vim.api.nvim_get_option_value("ttimeoutlen", {})
 
@@ -74,7 +74,7 @@ function M.enter_spellcheck_mode()
 	end
 
 	-- Show suggestion preview if we start on a misspelled word
-	if my_config.ui.suggestion_preview then
+	if config.ui.suggestion_preview then
 		local word = vim.fn.expand("<cword>")
 		local bad_word = vim.fn.spellbadword(word)
 		if bad_word[1] ~= "" then -- If it's misspelled
@@ -90,15 +90,15 @@ function M.setup(opts)
 	opts = opts or {}
 
 	if opts.mappings and opts.mappings.leader then
-		my_config.mappings.leader = opts.mappings.leader
+		config.mappings.leader = opts.mappings.leader
 	end
 
 	if opts.ui then
 		if type(opts.ui.enable) == "boolean" then
-			my_config.ui.enable = opts.ui.enable
+			config.ui.enable = opts.ui.enable
 		end
 		if type(opts.ui.suggestion_preview) == "boolean" then
-			my_config.ui.suggestion_preview = opts.ui.suggestion_preview
+			config.ui.suggestion_preview = opts.ui.suggestion_preview
 		end
 	end
 
@@ -107,12 +107,12 @@ function M.setup(opts)
 
 	vim.api.nvim_set_keymap(
 		"n",
-		my_config.mappings.leader,
+		config.mappings.leader,
 		[[<cmd>lua require('spellbound').enter_spellcheck_mode()<CR>]],
 		keymap_opts
 	)
 
-	ui.setup(my_config.ui) -- Initialize UI module
+	ui.setup(config.ui) -- Initialize UI module
 end
 
 function M.on_exit()
@@ -124,7 +124,7 @@ function M.on_exit()
 	ui.hide_spellcheck_ui()
 	ui.hide_suggestion_preview()
 
-	-- Restore original timeout settings (as we changed them whoops)
+	-- Restore original timeout settings
 	if state.original_timeoutlen then
 		vim.opt.timeoutlen = state.original_timeoutlen
 	end

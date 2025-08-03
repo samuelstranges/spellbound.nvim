@@ -1,5 +1,5 @@
 -- Keep track of the state
-State = {
+local State = {
 	enabled = false,
 	original_timeoutlen = nil,
 	original_ttimeoutlen = nil,

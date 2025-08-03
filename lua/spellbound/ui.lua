@@ -10,11 +10,10 @@ local state = {
 	suggest_winid = nil,
 	suggest_bufnr = nil,
 	orig_win = nil,
-	orig_buf = nil,
 	preview_extmark_id = nil,
 	preview_namespace = nil,
 	preview_winid = nil, -- Floating window for suggestion preview
-	preview_bufnr = nil, -- Buffer for suggestion preview,
+	preview_bufnr = nil, -- Buffer for suggestion preview
 	color_namespace = vim.api.nvim_create_namespace("spellbound_color"),
 }
 
@@ -115,11 +114,9 @@ end
 
 -- Get suggestions for misspelled word
 function M.show_suggestions()
-	-- Store current window and buffer
+	-- Store current window
 	local current_win = vim.api.nvim_get_current_win()
-	local current_buf = vim.api.nvim_get_current_buf()
 	state.orig_win = current_win
-	state.orig_buf = current_buf
 
 	-- Get current word
 	local word = vim.fn.expand("<cword>")
@@ -442,7 +439,7 @@ function M.setup(config)
 	    autocmd ColorScheme * highlight! SpellcheckSuggestion guibg=#429d40 guifg=#FFFFFF gui=bold
 	    autocmd ColorScheme * highlight! SpellcheckSuggest guibg=#7a4dab guifg=#FFFFFF
 	    autocmd ColorScheme * highlight! SpellcheckUI guibg=#7a4dab guifg=#FFFFFF
-	  augroup enD
+	  augroup END
 	]])
 
 	-- Initialize color namespace if not already created

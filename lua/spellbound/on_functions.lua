@@ -1,8 +1,8 @@
--- when a button is pressed we should call a function in here...
+-- Event handlers for spellbound mode keybindings
 
 local ui = require("spellbound.ui")
 local state = require("spellbound.state")
-local my_config = require("spellbound.my_config")
+local config = require("spellbound.config")
 
 local on = {}
 
@@ -11,8 +11,8 @@ local function show_deferred_preview_on_selected_word()
 	-- We use defer_fn to ensure the cursor has moved and the screen has updated
 	vim.defer_fn(function()
 		-- Then show the preview if still in spellcheck mode
-		if state.enabled and my_config.ui.suggestion_preview then
-			ui.show_suggestion_preview() -- Then show the preview
+		if state.enabled and config.ui.suggestion_preview then
+			ui.show_suggestion_preview()
 		end
 	end, 1)
 end
@@ -23,7 +23,7 @@ function on.on_next_word()
 end
 
 function on.on_prev_word()
-	vim.cmd("normal! [s") -- go to next misspelled word
+	vim.cmd("normal! [s") -- go to previous misspelled word
 	show_deferred_preview_on_selected_word()
 end
 

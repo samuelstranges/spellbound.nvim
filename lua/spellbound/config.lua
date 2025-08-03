@@ -1,5 +1,5 @@
 -- Store configuration
-local my_config = {
+local config = {
 	mappings = {
 		leader = "<leader>S", -- mapping to enter spellbound
 	},
@@ -9,4 +9,4 @@ local my_config = {
 	},
 }
 
-return my_config
+return config
