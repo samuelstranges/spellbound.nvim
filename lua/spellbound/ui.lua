@@ -405,8 +405,20 @@ function M.hide_suggestion_preview()
 	-- since we don't know what the original content was
 end
 
+-- Track initialization
+local initialized = false
+
+-- Check if UI is initialized
+function M.is_initialized()
+	return initialized
+end
+
 -- Setup UI module
 function M.setup(config)
+	if initialized then
+		return
+	end
+	
 	config = config or {}
 
 	-- Store config
@@ -438,6 +450,8 @@ function M.setup(config)
 	if not state.color_namespace then
 		state.color_namespace = vim.api.nvim_create_namespace("spellbound_color")
 	end
+	
+	initialized = true
 end
 
 -- Should show UI based on config

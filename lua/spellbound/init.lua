@@ -50,6 +50,11 @@ function M.enter_spellcheck_mode()
 	if state.enabled then
 		return
 	end
+	
+	-- Ensure UI is initialized (only happens once)
+	if not ui.is_initialized() then
+		ui.setup(config.ui)
+	end
 
 	-- Enable spell checking
 	vim.opt_local.spell = true
@@ -102,17 +107,16 @@ function M.setup(opts)
 		end
 	end
 
-	-- Define mapping to enter spellcheck mode
-	local keymap_opts = { noremap = true, silent = true, desc = "Spellbound" }
+	-- Define mapping to enter spellcheck mode (lazy-loaded)
+	local keymap_opts = { noremap = true, silent = true, desc = "Enter spellbound mode" }
 
-	vim.api.nvim_set_keymap(
-		"n",
-		config.mappings.leader,
-		[[<cmd>lua require('spellbound').enter_spellcheck_mode()<CR>]],
-		keymap_opts
-	)
+	vim.keymap.set("n", config.mappings.leader, function()
+		-- This ensures the module is only loaded when actually used
+		require('spellbound').enter_spellcheck_mode()
+	end, keymap_opts)
 
-	ui.setup(config.ui) -- Initialize UI module
+	-- Don't initialize UI until it's actually needed
+	-- ui.setup will be called when entering spellcheck mode
 end
 
 function M.on_exit()
