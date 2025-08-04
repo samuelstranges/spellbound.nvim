@@ -4,6 +4,7 @@ local ui = require("spellbound.ui")
 local state = require("spellbound.state")
 local config = require("spellbound.config")
 local spell = require("spellbound.spell")
+local cleanup = require("spellbound.cleanup")
 
 local on = {}
 

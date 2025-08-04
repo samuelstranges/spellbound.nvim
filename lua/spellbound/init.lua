@@ -6,6 +6,7 @@ local config = require("spellbound.config")
 local ui = require("spellbound.ui")
 local on = require("spellbound.on_functions")
 local spell = require("spellbound.spell")
+local cleanup = require("spellbound.cleanup")
 
 -- Key mappings configuration
 local keys = {
@@ -73,10 +74,15 @@ function M.enter_spellcheck_mode()
 
 	-- Set up keymaps
 	setup_keymaps()
+	
+	-- Register cleanup for keymaps
+	cleanup.register(remove_keymaps, "remove spellbound keymaps")
 
 	-- Show UI helper if enabled
 	if ui.should_show_ui() then
 		ui.show_spellcheck_ui(keys)
+		-- Register cleanup for UI
+		cleanup.register(function() ui.hide_spellcheck_ui() end, "hide spellcheck UI")
 	end
 
 	-- Show suggestion preview if we start on a misspelled word
@@ -85,7 +91,19 @@ function M.enter_spellcheck_mode()
 		if spell.is_misspelled(word) then
 			ui.show_suggestion_preview()
 		end
+		-- Register cleanup for suggestion preview
+		cleanup.register(function() ui.hide_suggestion_preview() end, "hide suggestion preview")
 	end
+	
+	-- Register cleanup for timeout settings
+	cleanup.register(function()
+		if state.original_timeoutlen then
+			vim.opt.timeoutlen = state.original_timeoutlen
+		end
+		if state.original_ttimeoutlen then
+			vim.opt.ttimeoutlen = state.original_ttimeoutlen
+		end
+	end, "restore timeout settings")
 
 	state.enabled = true
 end
@@ -124,17 +142,8 @@ function M.on_exit()
 		return
 	end
 
-	remove_keymaps()
-	ui.hide_spellcheck_ui()
-	ui.hide_suggestion_preview()
-
-	-- Restore original timeout settings
-	if state.original_timeoutlen then
-		vim.opt.timeoutlen = state.original_timeoutlen
-	end
-	if state.original_ttimeoutlen then
-		vim.opt.ttimeoutlen = state.original_ttimeoutlen
-	end
+	-- Run all registered cleanup functions
+	cleanup.run_all()
 
 	state.enabled = false
 end
