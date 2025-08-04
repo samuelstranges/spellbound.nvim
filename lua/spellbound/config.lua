@@ -1,7 +1,7 @@
 -- Store configuration
 local config = {
 	mappings = {
-		leader = "<leader>S", -- mapping to enter spellbound
+		leader = "<leader>S", -- Key to enter spellbound mode
 	},
 	ui = {
 		enable = true, -- Enable UI helper

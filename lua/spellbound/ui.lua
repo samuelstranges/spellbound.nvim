@@ -243,7 +243,7 @@ function M.show_suggestion_preview()
 	-- Clear any existing preview
 	M.hide_suggestion_preview()
 
-	local word = vim.fn.expand("<cword>") -- Get current word
+	local word = vim.fn.expand("<cword>")
 
 	-- Get suggestions using Neovim's spellsuggest function
 	local suggestions = vim.fn.spellsuggest(word, 1)
@@ -351,11 +351,7 @@ function M.show_suggestion_preview()
 			state.preview_winid = vim.api.nvim_open_win(state.preview_bufnr, false, preview_opts)
 
 			-- Set highlights
-			vim.api.nvim_win_set_option(
-				state.preview_winid,
-				"winhl",
-				"Normal:SpellcheckSuggestion,NormalFloat:SpellcheckSuggestion"
-			)
+			vim.wo[state.preview_winid].winhl = "Normal:SpellcheckSuggestion,NormalFloat:SpellcheckSuggestion"
 
 			-- Return early as we've already created the window for this special case
 			return
@@ -377,11 +373,7 @@ function M.show_suggestion_preview()
 		state.preview_winid = vim.api.nvim_open_win(state.preview_bufnr, false, preview_opts)
 
 		-- Set highlights
-		vim.api.nvim_win_set_option(
-			state.preview_winid,
-			"winhl",
-			"Normal:SpellcheckSuggestion,NormalFloat:SpellcheckSuggestion"
-		)
+		vim.wo[state.preview_winid].winhl = "Normal:SpellcheckSuggestion,NormalFloat:SpellcheckSuggestion"
 	end
 end
 
@@ -424,12 +416,12 @@ function M.setup(config)
 	}
 
 	-- Define highlight groups for UI with purple theme for the UI windows
-	vim.api.nvim_command("highlight SpellcheckUI guibg=#7a4dab guifg=#FFFFFF")
-	vim.api.nvim_command("highlight SpellcheckSuggest guibg=#7a4dab guifg=#FFFFFF")
+	vim.cmd("highlight SpellcheckUI guibg=#7a4dab guifg=#FFFFFF")
+	vim.cmd("highlight SpellcheckSuggest guibg=#7a4dab guifg=#FFFFFF")
 
 	-- Define highlights for the current word (red) and suggestion (green) with custom colors
-	vim.api.nvim_command("highlight! SpellcheckCurrentWord guibg=#ea3a43 guifg=#FFFFFF gui=bold")
-	vim.api.nvim_command("highlight! SpellcheckSuggestion guibg=#429d40 guifg=#FFFFFF gui=bold")
+	vim.cmd("highlight! SpellcheckCurrentWord guibg=#ea3a43 guifg=#FFFFFF gui=bold")
+	vim.cmd("highlight! SpellcheckSuggestion guibg=#429d40 guifg=#FFFFFF gui=bold")
 
 	-- Force highlights to be distinct from Neovim's default spell highlights
 	vim.cmd([[

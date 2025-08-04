@@ -6,7 +6,7 @@ local config = require("spellbound.config")
 local ui = require("spellbound.ui")
 local on = require("spellbound.on_functions")
 
--- for mappings
+-- Key mappings configuration
 local keys = {
 	next_word = "w",
 	prev_word = "b",
@@ -27,8 +27,8 @@ local function remove_keymaps()
 		pcall(vim.keymap.del, "n", key_value, { buffer = 0 })
 	end
 end
--- define keymaps for spellcheck mode
 
+-- Define keymaps for spellcheck mode
 local function setup_keymaps()
 	local default_opts = { buffer = 0, noremap = true, silent = true }
 
