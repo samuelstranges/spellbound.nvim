@@ -3,6 +3,7 @@
 local ui = require("spellbound.ui")
 local state = require("spellbound.state")
 local config = require("spellbound.config")
+local spell = require("spellbound.spell")
 
 local on = {}
 
@@ -18,45 +19,38 @@ local function show_deferred_preview_on_selected_word()
 end
 
 function on.on_next_word()
-	vim.cmd("normal! ]s") -- go to next misspelled word
+	spell.goto_next()
 	show_deferred_preview_on_selected_word()
 end
 
 function on.on_prev_word()
-	vim.cmd("normal! [s") -- go to previous misspelled word
+	spell.goto_prev()
 	show_deferred_preview_on_selected_word()
 end
 
 function on.on_auto_accept()
-	-- Get suggestions
-	local word = vim.fn.expand("<cword>")
-	local suggestions = vim.fn.spellsuggest(word, 1)
+	local word = spell.get_current_word()
+	local suggestion = spell.get_first_suggestion(word)
 
 	-- Hide any existing suggestion preview
 	ui.hide_suggestion_preview()
 
 	-- Apply first suggestion if available
-	if #suggestions > 0 then
-		local suggestion = suggestions[1]
-
+	if suggestion then
 		-- Store the correction for potential "replace all" later
 		state.last_correction = { word = word, correction = suggestion }
 
-		-- First visually select the word with viw
-		vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("viw", true, false, true), "nx", true)
-
-		-- Then replace it with the suggestion
-		vim.api.nvim_feedkeys('"_c' .. suggestion, "nx", true)
+		-- Apply the correction
+		spell.apply_correction(suggestion)
 	else
 		vim.api.nvim_echo({ { "No suggestions available", "WarningMsg" } }, false, {})
 	end
 end
 
 function on.on_change_word()
-	-- Use a custom handler for c to avoid delays
-	local word = vim.fn.expand("<cword>")
+	local word = spell.get_current_word()
 
-	ui.hide_suggestion_preview() -- Hide any existing suggestion preview first
+	ui.hide_suggestion_preview()
 
 	-- First use viw to select the word
 	vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("viw", true, false, true), "n", false)
@@ -72,13 +66,13 @@ function on.on_change_word()
 end
 
 function on.on_add_to_dict()
-	ui.hide_suggestion_preview() -- Hide any existing suggestion preview first
-	vim.cmd("normal! zg") -- Then add word to dictionary
+	ui.hide_suggestion_preview()
+	spell.add_to_dictionary()
 end
 
 function on.on_ignore_word()
-	ui.hide_suggestion_preview() -- Hide any existing suggestion preview first
-	vim.cmd("normal! zG")
+	ui.hide_suggestion_preview()
+	spell.ignore_word()
 end
 
 function on.on_suggestions()
@@ -87,7 +81,7 @@ function on.on_suggestions()
 end
 
 function on.on_undo()
-	vim.cmd("normal! u")
+	spell.undo()
 end
 
 function on.on_toggle_preview()

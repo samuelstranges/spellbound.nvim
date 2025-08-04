@@ -5,6 +5,7 @@ local state = require("spellbound.state")
 local config = require("spellbound.config")
 local ui = require("spellbound.ui")
 local on = require("spellbound.on_functions")
+local spell = require("spellbound.spell")
 
 -- Key mappings configuration
 local keys = {
@@ -57,10 +58,10 @@ function M.enter_spellcheck_mode()
 	end
 
 	-- Enable spell checking
-	vim.opt_local.spell = true
+	spell.enable_spell()
 
 	-- Ensure dictionary is loaded for faster operations
-	vim.cmd("silent! mkspell! " .. vim.fn.fnameescape(vim.o.spellfile))
+	spell.compile_spellfile()
 
 	-- Save original timeout settings before modifying them
 	state.original_timeoutlen = vim.api.nvim_get_option_value("timeoutlen", {})
@@ -80,9 +81,8 @@ function M.enter_spellcheck_mode()
 
 	-- Show suggestion preview if we start on a misspelled word
 	if config.ui.suggestion_preview then
-		local word = vim.fn.expand("<cword>")
-		local bad_word = vim.fn.spellbadword(word)
-		if bad_word[1] ~= "" then -- If it's misspelled
+		local word = spell.get_current_word()
+		if spell.is_misspelled(word) then
 			ui.show_suggestion_preview()
 		end
 	end

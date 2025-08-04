@@ -1,6 +1,7 @@
 -- UI components for the spellcheck mode
 
 local M = {}
+local spell = require("spellbound.spell")
 
 -- UI state tracking
 local state = {
@@ -119,10 +120,10 @@ function M.show_suggestions()
 	state.orig_win = current_win
 
 	-- Get current word
-	local word = vim.fn.expand("<cword>")
+	local word = spell.get_current_word()
 
-	-- Get suggestions using Neovim's spellsuggest function
-	local suggestions = vim.fn.spellsuggest(word, 9)
+	-- Get suggestions
+	local suggestions = spell.get_suggestions(word, 9)
 
 	-- Create content for the window
 	local lines = { 'Suggestions for "' .. word .. '":' }
@@ -196,11 +197,8 @@ function M.show_suggestions()
 					if state.orig_win and vim.api.nvim_win_is_valid(state.orig_win) then
 						vim.api.nvim_set_current_win(state.orig_win)
 
-						-- First visually select the word with viw
-						vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("viw", true, false, true), "nx", true)
-
-						-- Then replace it with the suggestion
-						vim.api.nvim_feedkeys('"_c' .. sugg_to_apply, "nx", true)
+						-- Apply the correction using spell module
+						spell.apply_correction(sugg_to_apply)
 					end
 				end
 			end, { buffer = state.suggest_bufnr })
@@ -243,14 +241,13 @@ function M.show_suggestion_preview()
 	-- Clear any existing preview
 	M.hide_suggestion_preview()
 
-	local word = vim.fn.expand("<cword>")
+	local word = spell.get_current_word()
 
-	-- Get suggestions using Neovim's spellsuggest function
-	local suggestions = vim.fn.spellsuggest(word, 1)
+	-- Get first suggestion
+	local suggestion = spell.get_first_suggestion(word)
 
 	-- Only show if we have a suggestion
-	if #suggestions > 0 then
-		local suggestion = suggestions[1]
+	if suggestion then
 
 		-- Get cursor position
 		local winid = vim.api.nvim_get_current_win()
