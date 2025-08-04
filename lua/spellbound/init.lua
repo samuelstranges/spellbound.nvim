@@ -24,9 +24,14 @@ local keys = {
 
 -- Remove keymaps when exiting spellcheck mode
 local function remove_keymaps()
-	for _, key_value in pairs(keys) do
-		-- Use the 'key_value' as the keymap string to delete
-		pcall(vim.keymap.del, "n", key_value, { buffer = 0 })
+	for key_name, key_value in pairs(keys) do
+		local ok, err = pcall(vim.keymap.del, "n", key_value, { buffer = 0 })
+		if not ok and not err:match("E31") then -- E31 = "No such mapping"
+			vim.notify(
+				string.format("Spellbound: Failed to remove keymap '%s': %s", key_name, err),
+				vim.log.levels.WARN
+			)
+		end
 	end
 end
 
@@ -50,6 +55,16 @@ end
 -- Enter spellcheck mode
 function M.enter_spellcheck_mode()
 	if state.enabled then
+		return
+	end
+	
+	-- Validate buffer type
+	local buftype = vim.bo.buftype
+	if buftype ~= "" then
+		vim.notify(
+			string.format("Spellbound: Cannot use spellcheck in %s buffer", buftype),
+			vim.log.levels.WARN
+		)
 		return
 	end
 	

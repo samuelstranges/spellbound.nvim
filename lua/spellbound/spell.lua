@@ -85,10 +85,19 @@ end
 function M.compile_spellfile()
 	local spellfile = vim.o.spellfile
 	if not spellfile or spellfile == "" then
+		vim.notify("Spellbound: No spellfile configured", vim.log.levels.DEBUG)
 		return false
 	end
 	
-	vim.cmd("silent! mkspell! " .. vim.fn.fnameescape(spellfile))
+	local ok, err = pcall(vim.cmd, "silent! mkspell! " .. vim.fn.fnameescape(spellfile))
+	if not ok then
+		vim.notify(
+			string.format("Spellbound: Failed to compile spellfile: %s", err),
+			vim.log.levels.WARN
+		)
+		return false
+	end
+	
 	return true
 end
 

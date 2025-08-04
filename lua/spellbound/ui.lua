@@ -256,9 +256,15 @@ function M.show_suggestion_preview()
 
 		-- First check if we have valid buffer lines
 		local ok, line = pcall(vim.api.nvim_buf_get_lines, bufnr, row - 1, row, false)
-		if not ok or #line == 0 then
+		if not ok then
+			vim.notify(
+				string.format("Spellbound: Failed to get buffer lines: %s", line),
+				vim.log.levels.DEBUG
+			)
+			return
+		end
+		if #line == 0 then
 			-- This can happen if we're at the very start of the buffer
-			-- or in some other edge case. Don't show preview.
 			return
 		end
 
@@ -378,11 +384,23 @@ end
 function M.hide_suggestion_preview()
 	-- Clear any highlights from the colorizer namespace
 	local bufnr = vim.api.nvim_get_current_buf()
-	pcall(vim.api.nvim_buf_clear_namespace, bufnr, state.color_namespace, 0, -1)
+	local ok, err = pcall(vim.api.nvim_buf_clear_namespace, bufnr, state.color_namespace, 0, -1)
+	if not ok then
+		vim.notify(
+			string.format("Spellbound: Failed to clear namespace: %s", err),
+			vim.log.levels.DEBUG
+		)
+	end
 
 	-- Remove extmark if exists (keep for backward compatibility)
 	if state.preview_extmark_id and state.preview_namespace then
-		pcall(vim.api.nvim_buf_del_extmark, bufnr, state.preview_namespace, state.preview_extmark_id)
+		local ok, err = pcall(vim.api.nvim_buf_del_extmark, bufnr, state.preview_namespace, state.preview_extmark_id)
+		if not ok then
+			vim.notify(
+				string.format("Spellbound: Failed to delete extmark: %s", err),
+				vim.log.levels.DEBUG
+			)
+		end
 		state.preview_extmark_id = nil
 	end
 
